@@ -165,6 +165,10 @@ module StripeMock
         subscriptions[subscription[:id]] = subscription
         add_subscription_to_customer(customer, subscription)
 
+        subscription[:items][:data].each do |item|
+          subscriptions_items[item[:id]] = item
+        end
+
         subscriptions[subscription[:id]]
       end
 
