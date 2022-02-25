@@ -34,11 +34,15 @@ shared_examples 'Customer Subscriptions with plans' do
 
       customer = Stripe::Customer.retrieve(customer.id)
       subscriptions = Stripe::Subscription.list(customer: customer.id)
+      subscription_items = Stripe::SubscriptionItem.list(subscription: subscription.id)
       charges = Stripe::Charge.list(customer: customer.id)
 
       expect(subscriptions.data).to_not be_empty
       expect(subscriptions.count).to eq(1)
       expect(subscriptions.data.length).to eq(1)
+      expect(subscription_items.data).to_not be_empty
+      expect(subscription_items.count).to eq(1)
+      expect(subscription_items.data.length).to eq(1)
       expect(charges.data.length).to eq(1)
       expect(customer.currency).to eq("usd")
 
@@ -47,6 +51,9 @@ shared_examples 'Customer Subscriptions with plans' do
       expect(subscriptions.data.first.customer).to eq(customer.id)
       expect(subscriptions.data.first.metadata.foo).to eq( "bar" )
       expect(subscriptions.data.first.metadata.example).to eq( "yes" )
+
+      expect(subscription_items.data.first.quantity).to eq(1)
+      expect(subscription_items.data.first.plan.to_hash).to eq(plan.to_hash)
     end
 
     it "adds a new subscription to customer with none", live: true do
@@ -1355,6 +1362,7 @@ shared_examples 'Customer Subscriptions with prices' do
 
       customer = Stripe::Customer.retrieve(customer.id)
       subscriptions = Stripe::Subscription.list(customer: customer.id)
+      subscription_items = Stripe::SubscriptionItem.list(subscription: subscription.id)
       charges = Stripe::Charge.list(customer: customer.id)
 
       expect(subscriptions.data).to_not be_empty
@@ -1369,6 +1377,9 @@ shared_examples 'Customer Subscriptions with prices' do
       expect(subscriptions.data.first.customer).to eq(customer.id)
       expect(subscriptions.data.first.metadata.foo).to eq( "bar" )
       expect(subscriptions.data.first.metadata.example).to eq( "yes" )
+
+      expect(subscription_items.data.first.quantity).to eq(1)
+      expect(subscription_items.data.first.plan.to_hash).to eq(price.to_hash)
     end
   end
 end
